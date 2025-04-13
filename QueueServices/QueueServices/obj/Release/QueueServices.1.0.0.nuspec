@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>QueueServices</id>
+    <version>1.0.0</version>
+    <authors>Michael Duran</authors>
+    <description>Librería para manejo de colas en microservicios .NET</description>
+    <tags>microservices rabbitmq logging sftp</tags>
+    <repository type="git" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Newtonsoft.Json" version="13.0.3" exclude="Build,Analyzers" />
+        <dependency id="RabbitMQ.Client" version="7.1.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\workspace\repos\QueueServices\QueueServices\bin\Release\net9.0\QueueServices.dll" target="lib\net9.0\QueueServices.dll" />
+  </files>
+</package>

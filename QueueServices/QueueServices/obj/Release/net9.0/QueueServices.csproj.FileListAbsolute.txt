@@ -1,0 +1,12 @@
+C:\workspace\repos\QueueServices\QueueServices\bin\Release\net9.0\QueueServices.deps.json
+C:\workspace\repos\QueueServices\QueueServices\bin\Release\net9.0\QueueServices.dll
+C:\workspace\repos\QueueServices\QueueServices\bin\Release\net9.0\QueueServices.pdb
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\QueueServices.csproj.AssemblyReference.cache
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\QueueServices.GeneratedMSBuildEditorConfig.editorconfig
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\QueueServices.AssemblyInfoInputs.cache
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\QueueServices.AssemblyInfo.cs
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\QueueServices.csproj.CoreCompileInputs.cache
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\QueueServices.dll
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\refint\QueueServices.dll
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\QueueServices.pdb
+C:\workspace\repos\QueueServices\QueueServices\obj\Release\net9.0\ref\QueueServices.dll

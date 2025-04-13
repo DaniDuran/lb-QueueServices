@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>MyCompany.MyLibrary</id>
+    <version>1.0.0</version>
+    <authors>Michael Durán</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <description>Librería para manejo de colas, logs y herramientas comunes en microservicios .NET</description>
+    <tags>microservices rabbitmq logging sftp</tags>
+    <repository type="git" url="https://github.com/mycompany/myrepo" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Newtonsoft.Json" version="13.0.3" exclude="Build,Analyzers" />
+        <dependency id="RabbitMQ.Client" version="7.1.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\workspace\repos\QueueServices\QueueServices\bin\Release\net9.0\QueueServices.dll" target="lib\net9.0\QueueServices.dll" />
+  </files>
+</package>
