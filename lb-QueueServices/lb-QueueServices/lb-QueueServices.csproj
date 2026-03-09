@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>lb-QueueServices</PackageId>
+    <Version>2.0.2</Version>
+    <Authors>Daniel Duran</Authors>
+    <Company>Thomas MTI</Company>
+    <Title>lb-QueueServices</Title>
+    <RootNamespace>lb_QueueServices</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>lb-QueueServices es una librería .NET orientada a mensajería asíncrona con RabbitMQ, diseñada bajo Clean Architecture, DDD. Proporciona contratos y componentes desacoplados para publicar, consumir y monitorear colas de forma dinámica, incluyendo soporte para exchanges configurables, eventos de monitoreo, políticas de reintento y manejo centralizado de errores, permitiendo su reutilización transparente en microservicios y procesos distribuidos.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RootNamespace>lb_QueueServices</RootNamespace>    
+    <Nullable>enable</Nullable>
+    <Copyright>
+      Copyright © 2026 Thomas MTI. Todos los derechos reservados. Esta biblioteca es propiedad exclusiva de Thomas MTI y ha sido desarrollada para uso interno y corporativo dentro de la empresa. Su uso está estrictamente limitado a los componentes, sistemas y aplicaciones autorizados por la organización. Queda prohibida la copia, distribución, modificación, sublicencia o uso externo de este software, total o parcialmente, sin la autorización expresa y por escrito de Thomas MTI.
+    </Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
