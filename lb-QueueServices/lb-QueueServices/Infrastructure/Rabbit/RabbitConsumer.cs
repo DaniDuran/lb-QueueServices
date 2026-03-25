@@ -12,6 +12,9 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         private IChannel? _channel;
         private AsyncEventingBasicConsumer? _consumer;
 
+        private readonly SemaphoreSlim _channelLock = new(1, 1);
+        private RetryPolicy _retryPolicy = new();
+
         private bool _disposed;
 
         //public event EventHandler<QueueMessageReceivedEvent>? MessageReceived;
@@ -24,6 +27,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         public async Task StartAsync(QueueContext context, RetryPolicy? retry = null)
         {
             EnsureNotDisposed();
+            _retryPolicy = retry ?? new RetryPolicy();
 
             try
             {
@@ -40,6 +44,14 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 _connection = await factory.CreateConnectionAsync();
                 _channel = await _connection.CreateChannelAsync();
 
+                if (context.UseBasicQos) {
+                    await _channel.BasicQosAsync(
+                        prefetchSize: context.BasicQosPrefetchSize,
+                        prefetchCount: context.BasicQosPrefetchCount,
+                        global: context.BasicQosGlobal
+                    );
+                }
+
                 await _channel.ExchangeDeclareAsync(
                     exchange: context.Exchange,
                     type: context.ExchangeType,
@@ -49,7 +61,8 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                     queue: context.Queue,
                     durable: true,
                     exclusive: false,
-                    autoDelete: false);
+                    autoDelete: false,
+                    arguments: context.Arguments);
 
                 await _channel.QueueBindAsync(
                     queue: context.Queue,
@@ -84,7 +97,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
 
         #region Handlers
 
-        private static IDictionary<string, object>? SanitizeHeaders( IDictionary<string, object?>? headers)
+        private static IReadOnlyDictionary<string, object>? SanitizeHeaders( IDictionary<string, object?>? headers)
         {
             if (headers == null || headers.Count == 0)
                 return null;
@@ -95,38 +108,109 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                     kv => kv.Key,
                     kv => kv.Value!);
         }
+
         private async Task OnMessageReceivedAsync(object sender, BasicDeliverEventArgs args)
         {
             try
             {
-                var eventArgs = new QueueMessageReceivedEvent(
+                var sanitizedHeaders = SanitizeHeaders(args.BasicProperties?.Headers);
+                var channel = _channel!;
+
+                QueueMessageReceivedEvent eventArgs = null!;
+
+                eventArgs = new QueueMessageReceivedEvent(
                     queueName: args.RoutingKey,
                     body: args.Body.ToArray(),
-                    headers: SanitizeHeaders(args.BasicProperties?.Headers));
+                    ack: async () =>
+                    {
+                        await _channelLock.WaitAsync();
+                        try
+                        {
+                            await channel!.BasicAckAsync(args.DeliveryTag, false);
+                        }
+                        finally
+                        {
+                            _channelLock.Release();
+                        }
+                    },
+                    nack: async (requeue) =>
+                    {
+                        await _channelLock.WaitAsync();
+
+                        try
+                        {
+                            var retry = eventArgs.GetRetryCount();
+                            if (retry >= _retryPolicy.MaxRetries)
+                            {
+                                await channel!.BasicNackAsync(args.DeliveryTag, false, false);
+                                return;
+                            }
+                            else if (requeue) {
+                                retry++;
+
+                                var originalProps = args.BasicProperties;
+
+                                var props = new BasicProperties
+                                {
+                                    Persistent = true,
+                                    ContentType = originalProps?.ContentType,
+                                    ContentEncoding = originalProps?.ContentEncoding,
+                                    CorrelationId = originalProps?.CorrelationId,
+                                    MessageId = originalProps?.MessageId,
+                                    Type = originalProps?.Type,
+                                    AppId = originalProps?.AppId,
+                                    Priority = originalProps?.Priority ?? 0,
+                                    Headers = new Dictionary<string, object?>()
+                                };
+
+                                if (originalProps?.Headers != null)
+                                {
+                                    foreach (var h in originalProps.Headers)
+                                    {
+                                        props.Headers[h.Key] = h.Value;
+                                    }
+                                }
+
+                                props.Headers["x-retry-count"] = retry;
+
+                                var body = args.Body.ToArray();
+
+                                await channel!.BasicPublishAsync(
+                                    exchange: args.Exchange,
+                                    routingKey: args.RoutingKey,
+                                    mandatory: false,
+                                    basicProperties: props,
+                                    body: body
+                                );
+
+                                await channel.BasicAckAsync(args.DeliveryTag, false);
+                            }
+                            else
+                            {
+                                await channel.BasicNackAsync(args.DeliveryTag, false, false);
+                            }
+                        }
+                        finally
+                        {
+                            _channelLock.Release();
+                        }
+                    },
+                    headers: sanitizedHeaders);
 
                 if (MessageReceived != null)
                 {
-                    var invocationList = MessageReceived.GetInvocationList();
+                    var handlers = MessageReceived.GetInvocationList();
 
-                    foreach (var handler in invocationList)
+                    foreach (var handler in handlers)
                     {
                         var asyncHandler = (Func<object?, QueueMessageReceivedEvent, Task>)handler;
                         await asyncHandler(this, eventArgs);
                     }
-                }                
-
-                //MessageReceived?.Invoke(this,
-                //    new QueueMessageReceivedEvent(
-                //         queueName: args.RoutingKey,
-                //         body: args.Body.ToArray(),
-                //         headers: SanitizeHeaders(args.BasicProperties?.Headers)));
-
-                await _channel!.BasicAckAsync(args.DeliveryTag, false);
+                }
             }
             catch (Exception ex)
             {
                 Error?.Invoke(this, new QueueErrorEvent(ex));
-                await _channel!.BasicNackAsync(args.DeliveryTag, false, requeue: false);
             }
         }
 

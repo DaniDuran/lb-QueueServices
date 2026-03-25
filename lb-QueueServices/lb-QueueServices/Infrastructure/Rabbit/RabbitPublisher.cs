@@ -1,8 +1,8 @@
-﻿using System.Text;
-using Newtonsoft.Json;
-using RabbitMQ.Client;
 using lb_QueueServices.Domain.Contracts;
 using lb_QueueServices.Domain.Models;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
+using System.Text;
 
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
@@ -55,7 +55,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
 
             using var connection = await factory.CreateConnectionAsync(context);
             using var channel = await connection.CreateChannelAsync();
-            
+
             // Exchange
             await channel.ExchangeDeclareAsync(
                 exchange: context.Exchange,
@@ -64,6 +64,11 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 autoDelete: false
             );
 
+            var properties = context.BasicProperties ?? new BasicProperties
+            {
+                Persistent = context.Persistent,
+                Priority = context.Priority
+            };
             // Queue (solo si aplica)
             if (!string.IsNullOrWhiteSpace(context.Queue))
             {
@@ -71,8 +76,10 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                     queue: context.Queue,
                     durable: true,
                     exclusive: false,
-                    autoDelete: false
+                    autoDelete: false,
+                    arguments: context.Arguments
                 );
+
 
                 await channel.QueueBindAsync(
                     queue: context.Queue,
@@ -81,14 +88,12 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 );
             }
 
-
-            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));            
-
+            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
             await channel.BasicPublishAsync(
                 exchange: context.Exchange,
                 routingKey: context.RoutingKey,
                 mandatory: true,
-                basicProperties: new BasicProperties { Persistent = true },
+                basicProperties: properties,
                 body: body
             );
 

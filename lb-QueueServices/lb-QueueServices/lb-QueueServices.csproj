@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <PackageId>lb-QueueServices</PackageId>
-    <Version>2.0.2</Version>
+    <Version>2.0.6</Version>
     <Authors>Daniel Duran</Authors>
     <Company>Thomas MTI</Company>
     <Title>lb-QueueServices</Title>

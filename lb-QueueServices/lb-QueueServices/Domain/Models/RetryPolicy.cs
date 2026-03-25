@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace lb_QueueServices.Domain.Models
+﻿namespace lb_QueueServices.Domain.Models
 {
     public sealed class RetryPolicy
     {
