@@ -7,7 +7,7 @@ using RabbitMQ.Client.Events;
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
     /// <summary>
-    /// RabbitMQ consumer with explicit ack/nack control and optional retry support.
+    /// Consumidor RabbitMQ con control explicito de ack/nack y soporte de reintentos.
     /// </summary>
     public sealed class RabbitConsumer : IQueueConsumer, IQueueMonitor, IAsyncDisposable
     {
@@ -22,24 +22,24 @@ namespace lb_QueueServices.Infrastructure.Rabbit
 
         //public event EventHandler<QueueMessageReceivedEvent>? MessageReceived;
         /// <summary>
-        /// Fired when a message is delivered. The handler must call AckAsync or NackAsync.
+        /// Se dispara cuando se entrega un mensaje. El handler debe llamar AckAsync o NackAsync.
         /// </summary>
         public event Func<object?, QueueMessageReceivedEvent, Task>? MessageReceived;
 
         /// <summary>
-        /// Fired when a message is observed in monitor mode.
+        /// Se dispara cuando un mensaje es observado en modo monitor.
         /// </summary>
         public event EventHandler<QueueMessageReceivedEvent>? MessageObserved;
 
         /// <summary>
-        /// Fired when the consumer encounters an error.
+        /// Se dispara cuando el consumidor encuentra un error.
         /// </summary>
         public event EventHandler<QueueErrorEvent>? Error;
 
         #region Start
 
         /// <summary>
-        /// Starts consuming messages using the provided context and retry policy.
+        /// Inicia el consumo usando el contexto y la politica de reintentos.
         /// </summary>
         public async Task StartAsync(QueueContext context, RetryPolicy? retry = null)
         {
@@ -103,13 +103,13 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         }
 
         /// <summary>
-        /// Starts passive monitoring (no ack/nack) for the provided context.
+        /// Inicia el monitoreo pasivo (sin ack/nack) para el contexto.
         /// </summary>
         public async Task StartMonitoringAsync(QueueContext context)
         {
             EnsureNotDisposed();
 
-            // Future variant:
+            // Variante futura:
             // autoAck = true
             // ReceivedAsync -> MessageObserved
         }
@@ -223,7 +223,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 {
                     var handlers = MessageReceived.GetInvocationList();
 
-                    // Execute handlers sequentially to preserve ordering and ack behavior.
+                    // Ejecutar handlers en serie para conservar orden y comportamiento de ack.
                     foreach (var handler in handlers)
                     {
                         var asyncHandler = (Func<object?, QueueMessageReceivedEvent, Task>)handler;
@@ -242,7 +242,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         #region Stop & Dispose
 
         /// <summary>
-        /// Stops consuming and releases resources.
+        /// Detiene el consumo y libera recursos.
         /// </summary>
         public async Task StopAsync()
         {
@@ -250,7 +250,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         }
 
         /// <summary>
-        /// Stops monitoring and releases resources.
+        /// Detiene el monitoreo y libera recursos.
         /// </summary>
         public async Task StopMonitoringAsync()
         {
@@ -258,7 +258,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         }
 
         /// <summary>
-        /// Asynchronously disposes the underlying channel and connection.
+        /// Libera recursos de forma asincronica.
         /// </summary>
         public async ValueTask DisposeAsync()
         {
@@ -278,7 +278,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
             }
             catch
             {
-                // Dispose should never throw.
+                // Dispose no debe lanzar excepciones.
             }
             finally
             {
@@ -288,7 +288,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         }
 
         /// <summary>
-        /// Disposes synchronously.
+        /// Libera recursos de forma sincrona.
         /// </summary>
         public void Dispose()
             => DisposeAsync().AsTask().GetAwaiter().GetResult();

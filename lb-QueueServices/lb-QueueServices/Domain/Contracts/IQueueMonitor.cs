@@ -5,22 +5,22 @@ using System;
 namespace lb_QueueServices.Domain.Contracts
 {
     /// <summary>
-    /// Passive monitor (no ack and no consumption).
+    /// Monitor pasivo (sin ack y sin consumo).
     /// </summary>
     public interface IQueueMonitor
     {
         /// <summary>
-        /// Fired when a message is observed.
+        /// Se dispara cuando se observa un mensaje.
         /// </summary>
         event EventHandler<QueueMessageReceivedEvent>? MessageObserved;
 
         /// <summary>
-        /// Starts passive monitoring with the provided context.
+        /// Inicia el monitoreo pasivo con el contexto proporcionado.
         /// </summary>
         Task StartMonitoringAsync(QueueContext context);
 
         /// <summary>
-        /// Stops passive monitoring and releases resources.
+        /// Detiene el monitoreo pasivo y libera recursos.
         /// </summary>
         Task StopMonitoringAsync();
     }

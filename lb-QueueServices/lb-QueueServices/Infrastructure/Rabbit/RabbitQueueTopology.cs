@@ -5,17 +5,17 @@ using System.Collections.Generic;
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
     /// <summary>
-    /// Helper methods for declaring exchanges, queues, and bindings.
+    /// Metodos de ayuda para declarar exchanges, colas y bindings.
     /// </summary>
     public static class RabbitQueueTopology
     {
         /// <summary>
-        /// Declares exchange, queue, and binding. When a retry policy is provided,
-        /// it configures a dead-letter exchange for retries.
+        /// Declara exchange, cola y binding. Si se proporciona politica de reintento,
+        /// configura un dead-letter exchange para reintentos.
         /// </summary>
-        /// <param name="channel">Open channel to declare against.</param>
-        /// <param name="ctx">Queue context.</param>
-        /// <param name="retry">Optional retry policy.</param>
+        /// <param name="channel">Canal abierto para declarar.</param>
+        /// <param name="ctx">Contexto de cola.</param>
+        /// <param name="retry">Politica de reintentos opcional.</param>
         public static async Task DeclareAsync(
             IChannel channel,
             QueueContext ctx,

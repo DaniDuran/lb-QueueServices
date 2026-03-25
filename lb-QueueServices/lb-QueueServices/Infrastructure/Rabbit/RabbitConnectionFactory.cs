@@ -4,15 +4,15 @@ using RabbitMQ.Client;
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
     /// <summary>
-    /// Factory for creating RabbitMQ connections using a <see cref="QueueContext"/>.
+    /// Fabrica de conexiones RabbitMQ basada en <see cref="QueueContext"/>.
     /// </summary>
     public sealed class RabbitConnectionFactory
     {
         /// <summary>
-        /// Creates a new connection using the provided context configuration.
+        /// Crea una nueva conexion usando la configuracion del contexto.
         /// </summary>
-        /// <param name="context">Connection settings.</param>
-        /// <returns>An open RabbitMQ connection.</returns>
+        /// <param name="context">Parametros de conexion.</param>
+        /// <returns>Conexion RabbitMQ abierta.</returns>
         public async Task<IConnection> CreateConnectionAsync(
             QueueContext context)
         {

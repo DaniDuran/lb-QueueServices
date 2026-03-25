@@ -1,27 +1,27 @@
 namespace lb_QueueServices.Domain.Models
 {
     /// <summary>
-    /// Retry policy configuration used by consumers.
+    /// Configuracion de reintentos usada por los consumidores.
     /// </summary>
     public sealed class RetryPolicy
     {
         /// <summary>
-        /// Maximum number of retries before rejecting the message.
+        /// Maximo numero de reintentos antes de rechazar.
         /// </summary>
         public int MaxRetries { get; init; } = 5;
 
         /// <summary>
-        /// Delay between retries in milliseconds.
+        /// Demora entre reintentos en milisegundos.
         /// </summary>
         public int DelayMilliseconds { get; init; } = 30000;
 
         /// <summary>
-        /// Suffix for retry exchange names.
+        /// Sufijo para exchanges de reintento.
         /// </summary>
         public string RetryExchangeSuffix { get; init; } = ".retry";
 
         /// <summary>
-        /// Suffix for dead-letter exchange names.
+        /// Sufijo para exchanges dead-letter.
         /// </summary>
         public string DeadLetterExchangeSuffix { get; init; } = ".dlq";
     }

@@ -7,12 +7,12 @@ using System.Text;
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
     /// <summary>
-    /// RabbitMQ publisher for declaring exchanges and publishing messages.
+    /// Publicador RabbitMQ para declarar exchanges y publicar mensajes.
     /// </summary>
     public sealed class RabbitPublisher : IQueuePublisher
     {
         /// <summary>
-        /// Ensures the exchange exists for the provided context.
+        /// Asegura que el exchange exista para el contexto indicado.
         /// </summary>
         public async Task EnsureExchangeAsync(QueueContext context)
         {
@@ -36,7 +36,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         private async Task EnsureQueueAndBindingAsync(QueueContext context)
         {
             if (string.IsNullOrWhiteSpace(context.Queue))
-                return; // fanout without explicit queue
+                return; // fanout sin cola explicita
 
             var factory = new RabbitConnectionFactory();
 
@@ -56,7 +56,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         }
 
         /// <summary>
-        /// Publishes a message and ensures the exchange and queue (if provided) exist.
+        /// Publica un mensaje y asegura exchange y cola (si aplica).
         /// </summary>
         public async Task PublishAsync<T>(T message, QueueContext context)
         {
@@ -79,7 +79,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 Priority = context.Priority
             };
 
-            // Queue (only when specified)
+            // Cola (solo si aplica)
             if (!string.IsNullOrWhiteSpace(context.Queue))
             {
                 await channel.QueueDeclareAsync(

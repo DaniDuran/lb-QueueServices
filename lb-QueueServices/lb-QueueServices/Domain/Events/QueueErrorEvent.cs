@@ -3,19 +3,19 @@ using System;
 namespace lb_QueueServices.Domain.Events
 {
     /// <summary>
-    /// Represents an error raised by a queue consumer.
+    /// Representa un error emitido por un consumidor de colas.
     /// </summary>
     public class QueueErrorEvent
     {
         /// <summary>
-        /// The exception that triggered the error.
+        /// Excepcion que origino el error.
         /// </summary>
         public Exception Exception { get; }
 
         /// <summary>
-        /// Creates a new error event wrapper.
+        /// Crea un evento de error.
         /// </summary>
-        /// <param name="exception">The exception to expose.</param>
+        /// <param name="exception">Excepcion a exponer.</param>
         public QueueErrorEvent(Exception exception)
         {
             Exception = exception;

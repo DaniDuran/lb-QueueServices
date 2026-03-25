@@ -5,30 +5,30 @@ using System;
 namespace lb_QueueServices.Domain.Contracts
 {
     /// <summary>
-    /// Contract for consuming messages from a queue with explicit ack/nack control.
+    /// Contrato para consumir mensajes de una cola con control explicito de ack/nack.
     /// </summary>
     public interface IQueueConsumer : IDisposable
     {
         //event EventHandler<QueueMessageReceivedEvent>? MessageReceived;
         /// <summary>
-        /// Fired when a message is delivered to the consumer.
-        /// Call <see cref="QueueMessageReceivedEvent.AckAsync"/> or
-        /// <see cref="QueueMessageReceivedEvent.NackAsync"/> to complete processing.
+        /// Se dispara cuando se entrega un mensaje al consumidor.
+        /// Llame a <see cref="QueueMessageReceivedEvent.AckAsync"/> o
+        /// <see cref="QueueMessageReceivedEvent.NackAsync"/> para completar el procesamiento.
         /// </summary>
         event Func<object?, QueueMessageReceivedEvent, Task> MessageReceived;
 
         /// <summary>
-        /// Fired when the consumer encounters an error.
+        /// Se dispara cuando el consumidor encuentra un error.
         /// </summary>
         event EventHandler<QueueErrorEvent>? Error;
 
         /// <summary>
-        /// Starts consuming messages with the provided context and optional retry policy.
+        /// Inicia el consumo con el contexto y una politica de reintentos opcional.
         /// </summary>
         Task StartAsync(QueueContext context, RetryPolicy? retry = null);
 
         /// <summary>
-        /// Stops consuming and releases resources.
+        /// Detiene el consumo y libera recursos.
         /// </summary>
         Task StopAsync();
     }

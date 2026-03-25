@@ -1,19 +1,19 @@
-﻿using lb_QueueServices.Domain.Contracts;
+using lb_QueueServices.Domain.Contracts;
 using lb_QueueServices.Infrastructure.Rabbit;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace lb_QueueServices.DependencyInjection
 {
     /// <summary>
-    /// Dependency injection helpers for registering queue services.
+    /// Utilidades de inyeccion de dependencias para registrar servicios de colas.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Registers the queue publisher and consumer services using scoped lifetimes.
+        /// Registra los servicios de consumo y publicacion con ciclo de vida scoped.
         /// </summary>
-        /// <param name="services">The service collection to register into.</param>
-        /// <returns>The same <see cref="IServiceCollection"/> for chaining.</returns>
+        /// <param name="services">Coleccion de servicios donde se registran.</param>
+        /// <returns>La misma <see cref="IServiceCollection"/> para encadenar.</returns>
         public static IServiceCollection AddQueueServices(
             this IServiceCollection services)
         {

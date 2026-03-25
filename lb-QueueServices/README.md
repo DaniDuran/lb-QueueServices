@@ -269,6 +269,43 @@ Esto evita sobrecargar consumidores.
 
 ------------------------------------------------------------------------
 
+# DLQ (Dead Letter Queue)
+
+var context = new QueueContext
+	{
+		Exchange = "orders.exchange",
+		Queue = "orders.queue",
+		RoutingKey = "orders.created",
+		Arguments = new Dictionary<string, object?>
+		{
+			{ "x-dead-letter-exchange", "orders.dlx" },
+			{ "x-dead-letter-routing-key", "orders.dlq" }
+		}
+	};
+
+Esto envia mensajes rechazados a la cola DLQ.
+
+------------------------------------------------------------------------
+
+# Retries avanzados
+
+var retryPolicy = new RetryPolicy
+	{
+		MaxRetries = 5
+	};
+
+await _consumer.StartAsync(context, retryPolicy);
+
+_consumer.MessageReceived += async (sender, message) =>
+{
+	// Reencola el mensaje e incrementa x-retry-count
+	await message.NackAsync(requeue: true);
+};
+
+Puedes combinar con TTL agregando "x-message-ttl" en Arguments.
+
+------------------------------------------------------------------------
+
 # Manejo de errores
 
 \_consumer.Error += (sender, error) =\> {

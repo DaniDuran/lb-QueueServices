@@ -1,22 +1,22 @@
 namespace lb_QueueServices.Domain.Events
 {
     /// <summary>
-    /// Event raised when a queue message is delivered to a consumer.
+    /// Evento que se dispara cuando un mensaje es entregado al consumidor.
     /// </summary>
     public class QueueMessageReceivedEvent
     {
         /// <summary>
-        /// Queue name or routing key used for delivery.
+        /// Nombre de la cola o routing key usado en la entrega.
         /// </summary>
         public string QueueName { get; }
 
         /// <summary>
-        /// Raw message body bytes.
+        /// Bytes crudos del cuerpo del mensaje.
         /// </summary>
         public byte[] Body { get; }
 
         /// <summary>
-        /// Message headers, if any.
+        /// Headers del mensaje, si existen.
         /// </summary>
         public IReadOnlyDictionary<string, object>? Headers { get; }
 
@@ -24,13 +24,13 @@ namespace lb_QueueServices.Domain.Events
         private readonly Func<bool, ValueTask> _nack;
 
         /// <summary>
-        /// Creates a new message event with ack/nack callbacks.
+        /// Crea un evento con callbacks de ack/nack.
         /// </summary>
-        /// <param name="queueName">Queue name or routing key.</param>
-        /// <param name="body">Message body bytes.</param>
-        /// <param name="ack">Callback to acknowledge the message.</param>
-        /// <param name="nack">Callback to reject the message (optionally requeue).</param>
-        /// <param name="headers">Optional delivery headers.</param>
+        /// <param name="queueName">Nombre de cola o routing key.</param>
+        /// <param name="body">Bytes del mensaje.</param>
+        /// <param name="ack">Callback para confirmar el mensaje.</param>
+        /// <param name="nack">Callback para rechazar el mensaje (opcionalmente reencolar).</param>
+        /// <param name="headers">Headers opcionales.</param>
         public QueueMessageReceivedEvent(
             string queueName,
             byte[] body,
@@ -46,19 +46,19 @@ namespace lb_QueueServices.Domain.Events
         }
 
         /// <summary>
-        /// Acknowledges the message as successfully processed.
+        /// Confirma el mensaje como procesado correctamente.
         /// </summary>
         public ValueTask AckAsync() => _ack();
 
         /// <summary>
-        /// Rejects the message and optionally requeues it.
+        /// Rechaza el mensaje y opcionalmente lo reencola.
         /// </summary>
-        /// <param name="requeue">Whether to requeue the message.</param>
+        /// <param name="requeue">Si debe reencolarse.</param>
         public ValueTask NackAsync(bool requeue) => _nack(requeue);
 
         /// <summary>
-        /// Reads the retry count from the "x-retry-count" header.
-        /// Returns 0 when not present or invalid.
+        /// Lee el conteo de reintentos desde el header "x-retry-count".
+        /// Retorna 0 si no existe o es invalido.
         /// </summary>
         public int GetRetryCount()
         {
