@@ -1,15 +1,20 @@
-﻿using lb_QueueServices.Domain.Models;
+using lb_QueueServices.Domain.Models;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
+    /// <summary>
+    /// Factory for creating RabbitMQ connections using a <see cref="QueueContext"/>.
+    /// </summary>
     public sealed class RabbitConnectionFactory
     {
+        /// <summary>
+        /// Creates a new connection using the provided context configuration.
+        /// </summary>
+        /// <param name="context">Connection settings.</param>
+        /// <returns>An open RabbitMQ connection.</returns>
         public async Task<IConnection> CreateConnectionAsync(
-        QueueContext context)
+            QueueContext context)
         {
             var factory = new ConnectionFactory
             {

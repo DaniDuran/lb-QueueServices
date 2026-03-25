@@ -6,8 +6,14 @@ using System.Text;
 
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
+    /// <summary>
+    /// RabbitMQ publisher for declaring exchanges and publishing messages.
+    /// </summary>
     public sealed class RabbitPublisher : IQueuePublisher
     {
+        /// <summary>
+        /// Ensures the exchange exists for the provided context.
+        /// </summary>
         public async Task EnsureExchangeAsync(QueueContext context)
         {
             var factory = new RabbitConnectionFactory();
@@ -30,7 +36,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         private async Task EnsureQueueAndBindingAsync(QueueContext context)
         {
             if (string.IsNullOrWhiteSpace(context.Queue))
-                return; // fanout sin cola explícita
+                return; // fanout without explicit queue
 
             var factory = new RabbitConnectionFactory();
 
@@ -49,6 +55,9 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 routingKey: context.RoutingKey ?? string.Empty);
         }
 
+        /// <summary>
+        /// Publishes a message and ensures the exchange and queue (if provided) exist.
+        /// </summary>
         public async Task PublishAsync<T>(T message, QueueContext context)
         {
             var factory = new RabbitConnectionFactory();
@@ -69,7 +78,8 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 Persistent = context.Persistent,
                 Priority = context.Priority
             };
-            // Queue (solo si aplica)
+
+            // Queue (only when specified)
             if (!string.IsNullOrWhiteSpace(context.Queue))
             {
                 await channel.QueueDeclareAsync(
@@ -79,7 +89,6 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                     autoDelete: false,
                     arguments: context.Arguments
                 );
-
 
                 await channel.QueueBindAsync(
                     queue: context.Queue,
@@ -96,7 +105,6 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 basicProperties: properties,
                 body: body
             );
-
         }
     }
 }

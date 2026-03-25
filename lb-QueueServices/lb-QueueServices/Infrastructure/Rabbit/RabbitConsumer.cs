@@ -1,4 +1,4 @@
-﻿using lb_QueueServices.Domain.Contracts;
+using lb_QueueServices.Domain.Contracts;
 using lb_QueueServices.Domain.Events;
 using lb_QueueServices.Domain.Models;
 using RabbitMQ.Client;
@@ -6,7 +6,10 @@ using RabbitMQ.Client.Events;
 
 namespace lb_QueueServices.Infrastructure.Rabbit
 {
-    public sealed class RabbitConsumer :IQueueConsumer, IQueueMonitor, IAsyncDisposable
+    /// <summary>
+    /// RabbitMQ consumer with explicit ack/nack control and optional retry support.
+    /// </summary>
+    public sealed class RabbitConsumer : IQueueConsumer, IQueueMonitor, IAsyncDisposable
     {
         private IConnection? _connection;
         private IChannel? _channel;
@@ -18,12 +21,26 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         private bool _disposed;
 
         //public event EventHandler<QueueMessageReceivedEvent>? MessageReceived;
+        /// <summary>
+        /// Fired when a message is delivered. The handler must call AckAsync or NackAsync.
+        /// </summary>
         public event Func<object?, QueueMessageReceivedEvent, Task>? MessageReceived;
+
+        /// <summary>
+        /// Fired when a message is observed in monitor mode.
+        /// </summary>
         public event EventHandler<QueueMessageReceivedEvent>? MessageObserved;
+
+        /// <summary>
+        /// Fired when the consumer encounters an error.
+        /// </summary>
         public event EventHandler<QueueErrorEvent>? Error;
 
         #region Start
 
+        /// <summary>
+        /// Starts consuming messages using the provided context and retry policy.
+        /// </summary>
         public async Task StartAsync(QueueContext context, RetryPolicy? retry = null)
         {
             EnsureNotDisposed();
@@ -36,7 +53,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                     HostName = context.Host,
                     Port = context.Port,
                     UserName = context.User,
-                    Password = context.Password,                   
+                    Password = context.Password,
                     AutomaticRecoveryEnabled = true,
                     NetworkRecoveryInterval = TimeSpan.FromSeconds(5)
                 };
@@ -44,7 +61,8 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 _connection = await factory.CreateConnectionAsync();
                 _channel = await _connection.CreateChannelAsync();
 
-                if (context.UseBasicQos) {
+                if (context.UseBasicQos)
+                {
                     await _channel.BasicQosAsync(
                         prefetchSize: context.BasicQosPrefetchSize,
                         prefetchCount: context.BasicQosPrefetchCount,
@@ -84,11 +102,14 @@ namespace lb_QueueServices.Infrastructure.Rabbit
             }
         }
 
+        /// <summary>
+        /// Starts passive monitoring (no ack/nack) for the provided context.
+        /// </summary>
         public async Task StartMonitoringAsync(QueueContext context)
         {
             EnsureNotDisposed();
 
-            // Variante futura:
+            // Future variant:
             // autoAck = true
             // ReceivedAsync -> MessageObserved
         }
@@ -97,7 +118,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
 
         #region Handlers
 
-        private static IReadOnlyDictionary<string, object>? SanitizeHeaders( IDictionary<string, object?>? headers)
+        private static IReadOnlyDictionary<string, object>? SanitizeHeaders(IDictionary<string, object?>? headers)
         {
             if (headers == null || headers.Count == 0)
                 return null;
@@ -145,7 +166,8 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                                 await channel!.BasicNackAsync(args.DeliveryTag, false, false);
                                 return;
                             }
-                            else if (requeue) {
+                            else if (requeue)
+                            {
                                 retry++;
 
                                 var originalProps = args.BasicProperties;
@@ -201,6 +223,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
                 {
                     var handlers = MessageReceived.GetInvocationList();
 
+                    // Execute handlers sequentially to preserve ordering and ack behavior.
                     foreach (var handler in handlers)
                     {
                         var asyncHandler = (Func<object?, QueueMessageReceivedEvent, Task>)handler;
@@ -218,16 +241,25 @@ namespace lb_QueueServices.Infrastructure.Rabbit
 
         #region Stop & Dispose
 
+        /// <summary>
+        /// Stops consuming and releases resources.
+        /// </summary>
         public async Task StopAsync()
         {
             await DisposeAsync();
         }
 
+        /// <summary>
+        /// Stops monitoring and releases resources.
+        /// </summary>
         public async Task StopMonitoringAsync()
         {
             await DisposeAsync();
         }
 
+        /// <summary>
+        /// Asynchronously disposes the underlying channel and connection.
+        /// </summary>
         public async ValueTask DisposeAsync()
         {
             if (_disposed) return;
@@ -246,7 +278,7 @@ namespace lb_QueueServices.Infrastructure.Rabbit
             }
             catch
             {
-                // Dispose nunca debe lanzar
+                // Dispose should never throw.
             }
             finally
             {
@@ -255,6 +287,9 @@ namespace lb_QueueServices.Infrastructure.Rabbit
             }
         }
 
+        /// <summary>
+        /// Disposes synchronously.
+        /// </summary>
         public void Dispose()
             => DisposeAsync().AsTask().GetAwaiter().GetResult();
 
@@ -265,8 +300,5 @@ namespace lb_QueueServices.Infrastructure.Rabbit
         }
 
         #endregion
-
-
     }
-
 }
